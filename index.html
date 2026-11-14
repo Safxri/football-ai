@@ -64,6 +64,60 @@ footer{padding:12px;background:#111c30;display:flex;gap:8px}
 </div>
 
 <script>
+ 
+const API_URL = "https://https://football-ai-api.tungpanithan1931.workers.dev/";
+
+async function checkBackend() {
+  try {
+    const response = await fetch(
+      API_URL + "/api/health"
+    );
+
+    if (!response.ok) {
+      throw new Error("Backend error");
+    }
+
+    const data = await response.json();
+
+    if (data.success && data.status === "healthy") {
+      addMessage("🟢 เชื่อมต่อ Football AI Backend สำเร็จ");
+    } else {
+      throw new Error("Invalid response");
+    }
+  } catch (error) {
+    addMessage("🔴 ไม่สามารถเชื่อมต่อ Backend ได้");
+  }
+}
+
+async function verifyMatch(url) {
+  try {
+    const response = await fetch(
+      API_URL + "/api/match",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ url })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      addMessage("❌ " + (data.error || "ตรวจสอบลิงก์ไม่สำเร็จ"));
+      return;
+    }
+
+    addMessage("✅ ตรวจสอบลิงก์สำเร็จ: " + data.source);
+    addMessage("⏳ ยังไม่ได้เริ่มติดตามสกอร์จริง");
+  } catch (error) {
+    addMessage("🔴 เชื่อมต่อ API ไม่สำเร็จ");
+  }
+}
+
+checkBackend();
+
 let home=0,away=0;
 const messages=document.getElementById("messages");
 
