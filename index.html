@@ -1,1 +1,115 @@
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Football AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1220;color:#f8fafc;font-family:system-ui,-apple-system,sans-serif}
+.app{max-width:720px;margin:auto;min-height:100dvh;display:flex;flex-direction:column}
+header{padding:18px;background:#111c30;border-bottom:1px solid #273449}
+h1{font-size:21px;margin:0}
+small{color:#94a3b8}
+.live{color:#4ade80;font-size:12px}
+main{flex:1;padding:16px;overflow-y:auto}
+.card{background:#17243a;border:1px solid #29374e;border-radius:17px;padding:16px;margin-bottom:15px}
+.score{text-align:center;font-size:32px;font-weight:800;margin:12px}
+.message{background:#1e3048;padding:13px;border-radius:15px;margin:12px 0;line-height:1.6}
+.me{background:#1d4e89;margin-left:40px}
+input{background:#17243a;border:1px solid #34445b;color:white;border-radius:12px;padding:13px;min-width:0;flex:1;font-size:15px}
+button{background:#38bdf8;color:#07121e;border:0;border-radius:12px;padding:12px 15px;font-weight:700;cursor:pointer}
+button:active{opacity:.7}
+.controls{display:flex;gap:8px;margin-top:12px}
+footer{padding:12px;background:#111c30;display:flex;gap:8px}
+.note{font-size:12px;color:#94a3b8;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<h1>⚽ Football AI</h1>
+<small>ผู้ช่วยฟุตบอลส่วนตัว</small>
+</header>
+
+<main id="messages">
+<div class="card">
+<b>เพิ่มการแข่งขันที่ต้องการติดตาม</b>
+<div class="controls">
+<input id="matchUrl" placeholder="วางลิงก์การแข่งขัน">
+<button onclick="addMatch()">เพิ่ม</button>
+</div>
+<p class="note">รองรับการบันทึกลิงก์เพื่อเตรียมเชื่อมต่อ API ในขั้นตอนถัดไป</p>
+</div>
+
+<div class="card">
+<div class="live">● DEMO MODE</div>
+<div id="matchName">Vietnam U19 vs South Korea U19</div>
+<div class="score" id="score">0 - 0</div>
+<button onclick="demoGoal()">⚽ ทดสอบแจ้งเตือนประตู</button>
+</div>
+
+<div class="message">
+🤖 สวัสดีครับ! ผมคือ Football AI
+<br>คุณสามารถเพิ่มลิงก์การแข่งขันและทดลองระบบแจ้งเตือนได้
+</div>
+</main>
+
+<footer>
+<input id="chatInput" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendChat()">
+<button onclick="sendChat()">ส่ง</button>
+</footer>
+</div>
+
+<script>
+let home=0,away=0;
+const messages=document.getElementById("messages");
+
+function addMessage(text,me=false){
+ const div=document.createElement("div");
+ div.className="message"+(me?" me":"");
+ div.textContent=text;
+ messages.appendChild(div);
+ div.scrollIntoView({behavior:"smooth",block:"end"});
+}
+
+function addMatch(){
+ const url=document.getElementById("matchUrl").value.trim();
+ if(!url){alert("กรุณาใส่ลิงก์การแข่งขัน");return}
+ let parsed;
+ try{parsed=new URL(url)}
+ catch{alert("ลิงก์ไม่ถูกต้อง");return}
+ if(!["http:","https:"].includes(parsed.protocol)){
+ alert("กรุณาใช้ลิงก์ http หรือ https");return;
+ }
+ localStorage.setItem("footballMatch",url);
+ addMessage("📌 บันทึกลิงก์แล้ว: "+url);
+ document.getElementById("matchUrl").value="";
+}
+
+function demoGoal(){
+ const team=Math.random()<0.5?"home":"away";
+ if(team==="home")home++;else away++;
+ document.getElementById("score").textContent=home+" - "+away;
+ const name=team==="home"?"Vietnam U19":"South Korea U19";
+ addMessage("⚽ GOAL! "+name+" ทำประตู! สกอร์ "+home+" - "+away);
+}
+
+function sendChat(){
+ const input=document.getElementById("chatInput");
+ const text=input.value.trim();
+ if(!text)return;
+ addMessage(text,true);
+ input.value="";
+ setTimeout(()=>{
+ addMessage("🤖 ขณะนี้เป็นโหมดทดสอบ ระบบ AI และข้อมูลบอลสดจะเชื่อมต่อในเวอร์ชันถัดไป");
+ },350);
+}
+
+const saved=localStorage.getItem("footballMatch");
+if(saved)document.getElementById("matchUrl").value=saved;
+</script>
+</body>
+</html>
