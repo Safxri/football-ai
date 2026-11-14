@@ -139,6 +139,7 @@ function addMatch(){
  alert("กรุณาใช้ลิงก์ http หรือ https");return;
  }
  localStorage.setItem("footballMatch",url);
+ verifyMatch(url);
  addMessage("📌 บันทึกลิงก์แล้ว: "+url);
  document.getElementById("matchUrl").value="";
 }
